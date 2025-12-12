@@ -63,13 +63,14 @@ export default function CreateEventPage() {
     if (!receipt) return;
 
     try {
-      const [log] = parseEventLogs({
+      const logs = parseEventLogs({
         abi: EventFactoryABI as Abi,
         eventName: "EventCreated",
         logs: receipt.logs,
-      });
+      }) as Array<{ args?: { eventAddress?: `0x${string}` } }>;
 
-      const eventAddress = log?.args?.eventAddress as `0x${string}` | undefined;
+      const log = logs[0];
+      const eventAddress = log?.args?.eventAddress;
       if (eventAddress) {
         setCreatedEvent(eventAddress);
         const timer = setTimeout(() => {
