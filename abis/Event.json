@@ -1,0 +1,110 @@
+[
+  {
+    "inputs": [],
+    "name": "name",
+    "outputs": [{"internalType": "string", "name": "", "type": "string"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [{"internalType": "string", "name": "", "type": "string"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "accessPassNFT",
+    "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "account", "type": "address"},
+      {"internalType": "uint256", "name": "id", "type": "uint256"}
+    ],
+    "name": "balanceOf",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "id", "type": "uint256"}],
+    "name": "totalSupply",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "tierId", "type": "uint256"}],
+    "name": "getTier",
+    "outputs": [
+      {
+        "components": [
+          {"internalType": "uint256", "name": "price", "type": "uint256"},
+          {"internalType": "uint256", "name": "maxSupply", "type": "uint256"},
+          {"internalType": "string", "name": "tierName", "type": "string"},
+          {"internalType": "bool", "name": "active", "type": "bool"}
+        ],
+        "internalType": "struct Tier",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "user", "type": "address"}
+    ],
+    "name": "nonces",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "uint256", "name": "tierId", "type": "uint256"},
+      {"internalType": "uint256", "name": "quantity", "type": "uint256"}
+    ],
+    "name": "buyTickets",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "operator", "type": "address"},
+      {"internalType": "bool", "name": "approved", "type": "bool"}
+    ],
+    "name": "setApprovalForAll",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "internalType": "uint256", "name": "tierId", "type": "uint256"},
+      {"indexed": false, "internalType": "string", "name": "tierName", "type": "string"},
+      {"indexed": false, "internalType": "uint256", "name": "price", "type": "uint256"},
+      {"indexed": false, "internalType": "uint256", "name": "maxSupply", "type": "uint256"}
+    ],
+    "name": "TierCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "internalType": "address", "name": "buyer", "type": "address"},
+      {"indexed": true, "internalType": "uint256", "name": "tierId", "type": "uint256"},
+      {"indexed": false, "internalType": "uint256", "name": "quantity", "type": "uint256"},
+      {"indexed": false, "internalType": "uint256", "name": "totalPaid", "type": "uint256"}
+    ],
+    "name": "TicketsPurchased",
+    "type": "event"
+  }
+]

@@ -1,0 +1,65 @@
+[
+  {
+    "inputs": [],
+    "name": "totalEvents",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "creator", "type": "address"}],
+    "name": "getEventsByCreator",
+    "outputs": [{"internalType": "address[]", "name": "", "type": "address[]"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "eventId", "type": "uint256"}],
+    "name": "getEvent",
+    "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {"internalType": "string", "name": "name", "type": "string"},
+          {"internalType": "string", "name": "symbol", "type": "string"},
+          {"internalType": "string", "name": "baseURI", "type": "string"},
+          {"internalType": "uint96", "name": "royaltyBps", "type": "uint96"}
+        ],
+        "internalType": "struct EventFactory.EventConfig",
+        "name": "eventConfig",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {"internalType": "uint256", "name": "tierId", "type": "uint256"},
+          {"internalType": "string", "name": "tierName", "type": "string"},
+          {"internalType": "uint256", "name": "price", "type": "uint256"},
+          {"internalType": "uint256", "name": "maxSupply", "type": "uint256"}
+        ],
+        "internalType": "struct EventFactory.TierConfig[]",
+        "name": "tiers",
+        "type": "tuple[]"
+      },
+      {"internalType": "address[]", "name": "gatekeepers", "type": "address[]"}
+    ],
+    "name": "createEvent",
+    "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "internalType": "address", "name": "eventAddress", "type": "address"},
+      {"indexed": true, "internalType": "address", "name": "creator", "type": "address"},
+      {"indexed": false, "internalType": "string", "name": "name", "type": "string"},
+      {"indexed": true, "internalType": "uint256", "name": "eventId", "type": "uint256"}
+    ],
+    "name": "EventCreated",
+    "type": "event"
+  }
+]
