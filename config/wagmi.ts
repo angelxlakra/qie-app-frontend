@@ -20,7 +20,7 @@ const connectors = connectorsForWallets(
     },
   ],
   {
-    appName: 'QIE Event Ticketing',
+    appName: 'qie-simplr-events',
     projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'placeholder_for_development',
   }
 )
