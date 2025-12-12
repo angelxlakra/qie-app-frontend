@@ -67,7 +67,7 @@ a {
   }
 
   .card {
-    @apply border rounded-lg p-6 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow;
+    @apply border border-gray-200 dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow;
   }
 
   .input {

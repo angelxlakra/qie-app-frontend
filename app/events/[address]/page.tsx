@@ -1,26 +1,26 @@
-import { Navigation } from '@/components/Navigation'
-import { Footer } from '@/components/Footer'
-import { TierCard } from '@/components/TierCard'
-import { getEventDetails, getEventTiers } from '@/lib/events'
-import Link from 'next/link'
+import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
+import { TierCard } from "@/components/TierCard";
+import { getEventDetails, getEventTiers } from "@/lib/events";
+import Link from "next/link";
 
-export const revalidate = 30 // Revalidate every 30 seconds
+export const revalidate = 30; // Revalidate every 30 seconds
 
 interface PageProps {
   params: Promise<{
-    address: string
-  }>
+    address: string;
+  }>;
 }
 
 export default async function EventDetailsPage({ params }: PageProps) {
-  const { address } = await params
-  const eventAddress = address as `0x${string}`
+  const { address } = await params;
+  const eventAddress = address as `0x${string}`;
 
   // Fetch event details and tiers
   const [eventDetails, tiers] = await Promise.all([
     getEventDetails(eventAddress),
     getEventTiers(eventAddress),
-  ])
+  ]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -40,7 +40,9 @@ export default async function EventDetailsPage({ params }: PageProps) {
 
           {/* Event Header */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2">{eventDetails.name}</h1>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-50 mb-2">
+              {eventDetails.name}
+            </h1>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
               {eventDetails.symbol}
             </p>
@@ -56,7 +58,8 @@ export default async function EventDetailsPage({ params }: PageProps) {
                   rel="noopener noreferrer"
                   className="ml-2 font-mono text-blue-600 dark:text-blue-400 hover:underline"
                 >
-                  {eventDetails.address.slice(0, 10)}...{eventDetails.address.slice(-8)} ↗
+                  {eventDetails.address.slice(0, 10)}...
+                  {eventDetails.address.slice(-8)} ↗
                 </a>
               </div>
               <div>
@@ -78,7 +81,9 @@ export default async function EventDetailsPage({ params }: PageProps) {
 
           {/* Tiers Section */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">Available Tickets</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-4">
+              Available Tickets
+            </h2>
 
             {tiers.length === 0 ? (
               <div className="card text-center py-12">
@@ -107,7 +112,9 @@ export default async function EventDetailsPage({ params }: PageProps) {
 
           {/* Info Box */}
           <div className="card bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-            <h3 className="font-semibold mb-2">ℹ️ How it works</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-gray-50 mb-2">
+              ℹ️ How it works
+            </h3>
             <ul className="text-sm space-y-1 text-gray-700 dark:text-gray-300">
               <li>• Connect your wallet to purchase tickets</li>
               <li>• Tickets are ERC-1155 tokens stored in your wallet</li>
@@ -121,5 +128,5 @@ export default async function EventDetailsPage({ params }: PageProps) {
 
       <Footer />
     </div>
-  )
+  );
 }

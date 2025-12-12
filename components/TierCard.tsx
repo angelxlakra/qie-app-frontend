@@ -1,17 +1,17 @@
-'use client'
+"use client";
 
-import { formatEther } from 'viem'
-import { BuyTicketButton } from './BuyTicketButton'
+import { formatEther } from "viem";
+import { BuyTicketButton } from "./BuyTicketButton";
 
 interface TierCardProps {
-  eventAddress: `0x${string}`
-  tierId: bigint
-  tierName: string
-  price: bigint
-  maxSupply: bigint
-  currentSupply: bigint
-  available: bigint
-  active: boolean
+  eventAddress: `0x${string}`;
+  tierId: bigint;
+  tierName: string;
+  price: bigint;
+  maxSupply: bigint;
+  currentSupply: bigint;
+  available: bigint;
+  active: boolean;
 }
 
 export function TierCard({
@@ -24,8 +24,9 @@ export function TierCard({
   available,
   active,
 }: TierCardProps) {
-  const soldPercentage = maxSupply > 0n ? Number((currentSupply * 100n) / maxSupply) : 0
-  const isSoldOut = available === 0n
+  const soldPercentage =
+    maxSupply > 0n ? Number((currentSupply * 100n) / maxSupply) : 0;
+  const isSoldOut = available === 0n;
 
   return (
     <div className="card">
@@ -33,7 +34,9 @@ export function TierCard({
         {/* Tier Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="text-xl font-semibold">{tierName}</h3>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              {tierName}
+            </h3>
             <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">
               {formatEther(price)} QIE
             </p>
@@ -63,10 +66,10 @@ export function TierCard({
             <div
               className={`h-2 rounded-full transition-all ${
                 soldPercentage >= 90
-                  ? 'bg-red-600'
+                  ? "bg-red-600"
                   : soldPercentage >= 70
-                  ? 'bg-yellow-600'
-                  : 'bg-green-600'
+                  ? "bg-yellow-600"
+                  : "bg-green-600"
               }`}
               style={{ width: `${soldPercentage}%` }}
             />
@@ -87,5 +90,5 @@ export function TierCard({
         />
       </div>
     </div>
-  )
+  );
 }

@@ -1,20 +1,27 @@
-import Link from 'next/link'
-import { formatEther } from 'viem'
+import Link from "next/link";
+import { formatEther } from "viem";
 
 interface EventCardProps {
-  eventAddress: `0x${string}`
-  name: string
-  creator: `0x${string}`
-  eventId: bigint
+  eventAddress: `0x${string}`;
+  name: string;
+  creator: `0x${string}`;
+  eventId: bigint;
 }
 
-export function EventCard({ eventAddress, name, creator, eventId }: EventCardProps) {
+export function EventCard({
+  eventAddress,
+  name,
+  creator,
+  eventId,
+}: EventCardProps) {
   return (
     <Link href={`/events/${eventAddress}`} className="card block">
       <div className="space-y-4">
         {/* Event Header */}
         <div>
-          <h3 className="text-xl font-semibold mb-1">{name}</h3>
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
+            {name}
+          </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Event #{eventId.toString()}
           </p>
@@ -24,13 +31,13 @@ export function EventCard({ eventAddress, name, creator, eventId }: EventCardPro
         <div className="space-y-2 text-sm">
           <div>
             <span className="text-gray-600 dark:text-gray-400">Contract:</span>
-            <p className="font-mono text-xs break-all">
+            <p className="font-mono text-xs break-all text-gray-800 dark:text-gray-200">
               {eventAddress.slice(0, 10)}...{eventAddress.slice(-8)}
             </p>
           </div>
           <div>
             <span className="text-gray-600 dark:text-gray-400">Organizer:</span>
-            <p className="font-mono text-xs break-all">
+            <p className="font-mono text-xs break-all text-gray-800 dark:text-gray-200">
               {creator.slice(0, 10)}...{creator.slice(-8)}
             </p>
           </div>
@@ -44,5 +51,5 @@ export function EventCard({ eventAddress, name, creator, eventId }: EventCardPro
         </div>
       </div>
     </Link>
-  )
+  );
 }

@@ -217,8 +217,10 @@ export default function CreateEventPage() {
       <main className="flex-1 container mx-auto px-4 py-10">
         <div className="max-w-5xl mx-auto space-y-8">
           <header className="space-y-2">
-            <h1 className="text-4xl font-bold">Create a New Event</h1>
-            <p className="text-gray-600">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-50">
+              Create a New Event
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300">
               Deploy a new event contract with ticket tiers and gatekeepers.
             </p>
           </header>
@@ -227,10 +229,12 @@ export default function CreateEventPage() {
             <section className="lg:col-span-2 card">
               <form onSubmit={handleSubmit} className="space-y-8">
                 <div className="space-y-4">
-                  <h2 className="text-xl font-semibold">Event Details</h2>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-50">
+                    Event Details
+                  </h2>
                   <div className="grid md:grid-cols-2 gap-4">
                     <label className="space-y-1">
-                      <span className="text-sm font-medium text-gray-700">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                         Event Name
                       </span>
                       <input
@@ -243,7 +247,7 @@ export default function CreateEventPage() {
                       />
                     </label>
                     <label className="space-y-1">
-                      <span className="text-sm font-medium text-gray-700">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                         Symbol
                       </span>
                       <input
@@ -257,7 +261,7 @@ export default function CreateEventPage() {
                       />
                     </label>
                     <label className="md:col-span-2 space-y-1">
-                      <span className="text-sm font-medium text-gray-700">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                         Base URI
                       </span>
                       <input
@@ -271,10 +275,12 @@ export default function CreateEventPage() {
                     </label>
                     <label className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700">
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                           Royalty (bps)
                         </span>
-                        <span className="text-xs text-gray-500">500 = 5%</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          500 = 5%
+                        </span>
                       </div>
                       <input
                         type="number"
@@ -290,7 +296,9 @@ export default function CreateEventPage() {
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold">Ticket Tiers</h2>
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-50">
+                      Ticket Tiers
+                    </h2>
                     <button
                       type="button"
                       onClick={addTier}
@@ -304,10 +312,10 @@ export default function CreateEventPage() {
                     {tiers.map((tier, index) => (
                       <div
                         key={index}
-                        className="border rounded-lg p-4 space-y-3 bg-gray-50"
+                        className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3 bg-gray-50 dark:bg-gray-800"
                       >
                         <div className="flex items-center justify-between">
-                          <div className="text-sm text-gray-600 font-medium">
+                          <div className="text-sm text-gray-600 dark:text-gray-300 font-medium">
                             Tier #{index + 1}
                           </div>
                           {tiers.length > 1 && (
@@ -322,7 +330,7 @@ export default function CreateEventPage() {
                         </div>
                         <div className="grid md:grid-cols-3 gap-3">
                           <label className="space-y-1">
-                            <span className="text-sm font-medium text-gray-700">
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                               Tier Name
                             </span>
                             <input
@@ -341,10 +349,12 @@ export default function CreateEventPage() {
                           </label>
                           <label className="space-y-1">
                             <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                                 Price (QIE)
                               </span>
-                              <span className="text-xs text-gray-500">wei</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                wei
+                              </span>
                             </div>
                             <input
                               type="number"
@@ -359,7 +369,7 @@ export default function CreateEventPage() {
                             />
                           </label>
                           <label className="space-y-1">
-                            <span className="text-sm font-medium text-gray-700">
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                               Max Supply
                             </span>
                             <input
@@ -385,7 +395,9 @@ export default function CreateEventPage() {
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold">Gatekeepers</h2>
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-50">
+                      Gatekeepers
+                    </h2>
                     <button
                       type="button"
                       onClick={addGatekeeper}
@@ -394,7 +406,7 @@ export default function CreateEventPage() {
                       + Add Address
                     </button>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
                     Gatekeepers are addresses allowed to validate tickets
                     (optional).
                   </p>
@@ -414,7 +426,7 @@ export default function CreateEventPage() {
                         <button
                           type="button"
                           onClick={() => removeGatekeeper(index)}
-                          className="text-sm text-gray-500 hover:text-gray-700"
+                          className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                           aria-label="Remove gatekeeper"
                         >
                           Remove
@@ -425,17 +437,17 @@ export default function CreateEventPage() {
                 </div>
 
                 {formError && (
-                  <div className="p-3 rounded-md bg-red-50 border border-red-200 text-red-700">
+                  <div className="p-3 rounded-md bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-800 text-red-700 dark:text-red-200">
                     {formError}
                   </div>
                 )}
                 {writeError && (
-                  <div className="p-3 rounded-md bg-red-50 border border-red-200 text-red-700">
+                  <div className="p-3 rounded-md bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-800 text-red-700 dark:text-red-200">
                     {writeError.message.split("\n")[0]}
                   </div>
                 )}
                 {isSuccess && createdEvent && (
-                  <div className="p-3 rounded-md bg-green-50 border border-green-200 text-green-700">
+                  <div className="p-3 rounded-md bg-green-50 border border-green-200 dark:bg-green-900/30 dark:border-green-800 text-green-700 dark:text-green-200">
                     Event created! Redirecting to {createdEvent}...
                   </div>
                 )}
@@ -455,8 +467,10 @@ export default function CreateEventPage() {
             </section>
 
             <aside className="card space-y-4">
-              <h2 className="text-xl font-semibold">Creation Checklist</h2>
-              <ul className="space-y-2 text-sm text-gray-700">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-50">
+                Creation Checklist
+              </h2>
+              <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
                 <li>• Connect your wallet on QIE Testnet (chain ID 1983).</li>
                 <li>• Add at least one ticket tier with price and supply.</li>
                 <li>• Royalty is set in basis points (500 = 5%).</li>
@@ -465,15 +479,15 @@ export default function CreateEventPage() {
                 </li>
               </ul>
 
-              <div className="p-3 rounded-md bg-gray-50 border">
-                <div className="text-xs uppercase text-gray-500 mb-1">
+              <div className="p-3 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                <div className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">
                   Status
                 </div>
                 <div className="space-y-1 text-sm">
                   <div>
                     Transaction:{" "}
                     {hash ? (
-                      <span className="font-mono text-blue-700">
+                      <span className="font-mono text-blue-700 dark:text-blue-300">
                         {hash.slice(0, 12)}...
                       </span>
                     ) : (
@@ -491,7 +505,7 @@ export default function CreateEventPage() {
                       : "Idle"}
                   </div>
                   {createdEvent && (
-                    <div className="break-all text-green-700">
+                    <div className="break-all text-green-700 dark:text-green-300">
                       Event Address: {createdEvent}
                     </div>
                   )}

@@ -1,14 +1,14 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useQRCode } from '@/hooks/useQRCode'
+import { useEffect, useState } from "react";
+import { useQRCode } from "@/hooks/useQRCode";
 
 interface QRCodeDisplayProps {
-  eventAddress: `0x${string}`
-  tierId: bigint
-  tierName: string
-  eventName: string
-  onClose: () => void
+  eventAddress: `0x${string}`;
+  tierId: bigint;
+  tierName: string;
+  eventName: string;
+  onClose: () => void;
 }
 
 export function QRCodeDisplay({
@@ -18,53 +18,63 @@ export function QRCodeDisplay({
   eventName,
   onClose,
 }: QRCodeDisplayProps) {
-  const { qrCodeUrl, deadline, isGenerating, error, generateQRCode, clearQRCode } =
-    useQRCode(eventAddress, tierId)
-  const [timeRemaining, setTimeRemaining] = useState<number | null>(null)
+  const {
+    qrCodeUrl,
+    deadline,
+    isGenerating,
+    error,
+    generateQRCode,
+    clearQRCode,
+  } = useQRCode(eventAddress, tierId);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
 
   // Calculate time remaining
   useEffect(() => {
-    if (!deadline) return
+    if (!deadline) return;
 
     const updateTimer = () => {
-      const now = Math.floor(Date.now() / 1000)
-      const remaining = Number(deadline) - now
+      const now = Math.floor(Date.now() / 1000);
+      const remaining = Number(deadline) - now;
 
       if (remaining <= 0) {
-        setTimeRemaining(0)
+        setTimeRemaining(0);
       } else {
-        setTimeRemaining(remaining)
+        setTimeRemaining(remaining);
       }
-    }
+    };
 
-    updateTimer()
-    const interval = setInterval(updateTimer, 1000)
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
 
-    return () => clearInterval(interval)
-  }, [deadline])
+    return () => clearInterval(interval);
+  }, [deadline]);
 
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 
-  const isExpired = timeRemaining !== null && timeRemaining <= 0
+  const isExpired = timeRemaining !== null && timeRemaining <= 0;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-md w-full p-6">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg max-w-md w-full p-6">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">{eventName}</h2>
-            <p className="text-sm text-gray-600">{tierName}</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {eventName}
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              {tierName}
+            </p>
           </div>
           <button
             onClick={() => {
-              clearQRCode()
-              onClose()
+              clearQRCode();
+              onClose();
             }}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
           >
             <svg
               className="w-6 h-6"
@@ -84,7 +94,7 @@ export function QRCodeDisplay({
 
         {!qrCodeUrl ? (
           <div className="text-center py-8">
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
               Generate a QR code to redeem your ticket at the venue. The QR code
               will be valid for 5 minutes.
             </p>
@@ -118,18 +128,20 @@ export function QRCodeDisplay({
                   Generating...
                 </span>
               ) : (
-                'Generate QR Code'
+                "Generate QR Code"
               )}
             </button>
             {error && (
-              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{error}</p>
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-800 rounded-lg">
+                <p className="text-sm text-red-600 dark:text-red-200">
+                  {error}
+                </p>
               </div>
             )}
           </div>
         ) : (
           <div className="text-center">
-            <div className="bg-white p-4 rounded-lg inline-block mb-4">
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg inline-block mb-4">
               <img
                 src={qrCodeUrl}
                 alt="Ticket QR Code"
@@ -140,14 +152,14 @@ export function QRCodeDisplay({
             {timeRemaining !== null && (
               <div className="mb-4">
                 {isExpired ? (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <p className="text-red-600 font-semibold mb-3">
+                  <div className="bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-800 rounded-lg p-4">
+                    <p className="text-red-600 dark:text-red-200 font-semibold mb-3">
                       QR Code Expired
                     </p>
                     <button
                       onClick={() => {
-                        clearQRCode()
-                        generateQRCode()
+                        clearQRCode();
+                        generateQRCode();
                       }}
                       className="btn-primary w-full"
                     >
@@ -155,13 +167,15 @@ export function QRCodeDisplay({
                     </button>
                   </div>
                 ) : (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p className="text-sm text-gray-600 mb-1">Time remaining:</p>
+                  <div className="bg-blue-50 border border-blue-200 dark:bg-blue-900/30 dark:border-blue-800 rounded-lg p-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+                      Time remaining:
+                    </p>
                     <p className="text-3xl font-bold text-blue-600">
                       {formatTime(timeRemaining)}
                     </p>
                     <div className="mt-3">
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                         <div
                           className="bg-blue-600 h-2 rounded-full transition-all duration-1000"
                           style={{
@@ -175,13 +189,15 @@ export function QRCodeDisplay({
               </div>
             )}
 
-            <div className="text-xs text-gray-500 space-y-1">
+            <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
               <p>Present this QR code to the venue staff for redemption</p>
-              <p className="font-medium">Do not share this QR code with anyone</p>
+              <p className="font-medium">
+                Do not share this QR code with anyone
+              </p>
             </div>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }

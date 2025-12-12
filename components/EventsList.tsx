@@ -1,49 +1,49 @@
-'use client'
+"use client";
 
-import { useState, useMemo } from 'react'
-import { EventCard } from './EventCard'
-import type { EventData } from '@/lib/events'
+import { useState, useMemo } from "react";
+import { EventCard } from "./EventCard";
+import type { EventData } from "@/lib/events";
 
 interface EventsListProps {
-  events: EventData[]
+  events: EventData[];
 }
 
-const EVENTS_PER_PAGE = 9
+const EVENTS_PER_PAGE = 9;
 
 export function EventsList({ events }: EventsListProps) {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Filter events based on search query
   const filteredEvents = useMemo(() => {
-    if (!searchQuery.trim()) return events
+    if (!searchQuery.trim()) return events;
 
-    const query = searchQuery.toLowerCase()
+    const query = searchQuery.toLowerCase();
     return events.filter((event) => {
       return (
         event.name.toLowerCase().includes(query) ||
         event.eventAddress.toLowerCase().includes(query) ||
         event.creator.toLowerCase().includes(query)
-      )
-    })
-  }, [events, searchQuery])
+      );
+    });
+  }, [events, searchQuery]);
 
   // Pagination
-  const totalPages = Math.ceil(filteredEvents.length / EVENTS_PER_PAGE)
-  const startIndex = (currentPage - 1) * EVENTS_PER_PAGE
-  const endIndex = startIndex + EVENTS_PER_PAGE
-  const paginatedEvents = filteredEvents.slice(startIndex, endIndex)
+  const totalPages = Math.ceil(filteredEvents.length / EVENTS_PER_PAGE);
+  const startIndex = (currentPage - 1) * EVENTS_PER_PAGE;
+  const endIndex = startIndex + EVENTS_PER_PAGE;
+  const paginatedEvents = filteredEvents.slice(startIndex, endIndex);
 
   // Reset to page 1 when search query changes
   const handleSearchChange = (value: string) => {
-    setSearchQuery(value)
-    setCurrentPage(1)
-  }
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <>
@@ -72,8 +72,9 @@ export function EventsList({ events }: EventsListProps) {
           </svg>
         </div>
         {searchQuery && (
-          <p className="text-sm text-gray-600 mt-2">
-            Found {filteredEvents.length} result{filteredEvents.length !== 1 ? 's' : ''} for "{searchQuery}"
+          <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+            Found {filteredEvents.length} result
+            {filteredEvents.length !== 1 ? "s" : ""} for "{searchQuery}"
           </p>
         )}
       </div>
@@ -82,15 +83,17 @@ export function EventsList({ events }: EventsListProps) {
       {filteredEvents.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-6xl mb-4">🔍</div>
-          <h2 className="text-2xl font-semibold mb-2">No Events Found</h2>
-          <p className="text-gray-600 mb-6">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-50 mb-2">
+            No Events Found
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
             {searchQuery
               ? `No events match "${searchQuery}". Try a different search term.`
-              : 'No events available yet.'}
+              : "No events available yet."}
           </p>
           {searchQuery && (
             <button
-              onClick={() => handleSearchChange('')}
+              onClick={() => handleSearchChange("")}
               className="btn-primary inline-block"
             >
               Clear Search
@@ -99,9 +102,10 @@ export function EventsList({ events }: EventsListProps) {
         </div>
       ) : (
         <>
-          <div className="mb-4 text-sm text-gray-600">
-            Showing {startIndex + 1}-{Math.min(endIndex, filteredEvents.length)} of{' '}
-            {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''}
+          <div className="mb-4 text-sm text-gray-600 dark:text-gray-300">
+            Showing {startIndex + 1}-{Math.min(endIndex, filteredEvents.length)}{" "}
+            of {filteredEvents.length} event
+            {filteredEvents.length !== 1 ? "s" : ""}
           </div>
 
           {/* Events Grid */}
@@ -129,39 +133,44 @@ export function EventsList({ events }: EventsListProps) {
               </button>
 
               <div className="flex gap-2">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                  // Show first page, last page, current page, and pages around current
-                  const showPage =
-                    page === 1 ||
-                    page === totalPages ||
-                    (page >= currentPage - 1 && page <= currentPage + 1)
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => {
+                    // Show first page, last page, current page, and pages around current
+                    const showPage =
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1);
 
-                  if (!showPage) {
-                    // Show ellipsis
-                    if (page === currentPage - 2 || page === currentPage + 2) {
-                      return (
-                        <span key={page} className="px-3 py-2 text-gray-400">
-                          ...
-                        </span>
-                      )
+                    if (!showPage) {
+                      // Show ellipsis
+                      if (
+                        page === currentPage - 2 ||
+                        page === currentPage + 2
+                      ) {
+                        return (
+                          <span key={page} className="px-3 py-2 text-gray-400">
+                            ...
+                          </span>
+                        );
+                      }
+                      return null;
                     }
-                    return null
-                  }
 
-                  return (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        currentPage === page
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  )
-                })}
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                          currentPage === page
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  }
+                )}
               </div>
 
               <button
@@ -176,5 +185,5 @@ export function EventsList({ events }: EventsListProps) {
         </>
       )}
     </>
-  )
+  );
 }
