@@ -1,13 +1,33 @@
-import { createPublicClient, http, parseAbiItem } from 'viem'
+import { createPublicClient, http } from 'viem'
 import { qieTestnet } from '@/config/chains'
-import { CONTRACT_ADDRESSES } from '@/config/contracts'
-import EventFactoryABI from '@/abis/EventFactory.json'
-import EventABI from '@/abis/Event.json'
+import { querySubgraph } from '@/config/subgraph'
+import {
+  GET_ALL_EVENTS,
+  GET_EVENT_BY_ADDRESS,
+  GET_EVENT_TIERS,
+  GET_USER_TICKETS,
+} from '@/lib/subgraph/queries'
+import type {
+  EventsQueryResponse,
+  EventQueryResponse,
+  TiersQueryResponse,
+  TicketBalancesQueryResponse,
+  SubgraphEvent,
+  SubgraphTier,
+} from '@/lib/subgraph/types'
 
+/**
+ * Public client for fallback contract reads if needed
+ * Now primarily using subgraph for all data fetching
+ */
 export const publicClient = createPublicClient({
   chain: qieTestnet,
   transport: http(),
 })
+
+// ============================================================================
+// Type Definitions (kept for backward compatibility)
+// ============================================================================
 
 export interface EventData {
   eventAddress: `0x${string}`
@@ -44,230 +64,254 @@ export interface UserTicket {
   price: bigint
 }
 
+// ============================================================================
+// Helper Functions for Type Conversion
+// ============================================================================
+
+/**
+ * Convert subgraph event to EventData format
+ */
+function subgraphEventToEventData(event: SubgraphEvent): EventData {
+  return {
+    eventAddress: event.id as `0x${string}`,
+    creator: event.creator as `0x${string}`,
+    name: event.name,
+    eventId: BigInt(event.eventId),
+    blockNumber: BigInt(event.createdAtBlock),
+    transactionHash: event.transactionHash as `0x${string}`,
+  }
+}
+
+/**
+ * Convert subgraph event to EventDetails format
+ */
+function subgraphEventToEventDetails(event: SubgraphEvent): EventDetails {
+  return {
+    address: event.id as `0x${string}`,
+    name: event.name,
+    symbol: event.symbol,
+    accessPassNFT: event.accessPassNFT as `0x${string}`,
+  }
+}
+
+/**
+ * Convert subgraph tier to TierData format
+ */
+function subgraphTierToTierData(tier: SubgraphTier): TierData {
+  const maxSupply = BigInt(tier.maxSupply)
+  const currentSupply = BigInt(tier.currentSupply)
+
+  return {
+    tierId: BigInt(tier.tierId),
+    tierName: tier.tierName,
+    price: BigInt(tier.price),
+    maxSupply,
+    currentSupply,
+    available: maxSupply - currentSupply,
+    active: tier.active,
+  }
+}
+
+// ============================================================================
+// Main Data Fetching Functions (now using Subgraph)
+// ============================================================================
+
 /**
  * Fetch all events created via EventFactory
- * QIE Testnet has a 10,000 block limit per request, so we fetch in chunks
+ * Now uses subgraph instead of parsing logs
  */
 export async function getAllEvents(): Promise<EventData[]> {
-  const eventCreatedAbi = parseAbiItem(
-    'event EventCreated(address indexed eventAddress, address indexed creator, string name, uint256 indexed eventId)'
-  )
-
   try {
-    // Get current block number
-    const latestBlock = await publicClient.getBlockNumber()
-
-    // QIE Testnet deployment block - adjust this based on when EventFactory was deployed
-    // For now, we'll fetch last 10,000 blocks (adjust as needed)
-    const startBlock = latestBlock > 10000n ? latestBlock - 10000n : 0n
-
-    const logs = await publicClient.getLogs({
-      address: CONTRACT_ADDRESSES.eventFactory,
-      event: eventCreatedAbi,
-      fromBlock: startBlock,
-      toBlock: 'latest',
+    const data = await querySubgraph<EventsQueryResponse>(GET_ALL_EVENTS, {
+      first: 1000,
+      skip: 0,
+      orderBy: 'createdAtTimestamp',
+      orderDirection: 'desc',
     })
 
-    return logs.map((log) => ({
-      eventAddress: log.args.eventAddress!,
-      creator: log.args.creator!,
-      name: log.args.name!,
-      eventId: log.args.eventId!,
-      blockNumber: log.blockNumber,
-      transactionHash: log.transactionHash,
-    }))
+    return data.events.map(subgraphEventToEventData)
   } catch (error) {
-    console.error('Error fetching events:', error)
-    // Return empty array if fetching fails
+    console.error('Error fetching events from subgraph:', error)
     return []
   }
 }
 
 /**
  * Get basic event details (name, symbol, accessPassNFT address)
+ * Now uses subgraph instead of contract reads
  */
 export async function getEventDetails(
   eventAddress: `0x${string}`
 ): Promise<EventDetails> {
-  const [name, symbol, accessPassNFT] = await Promise.all([
-    publicClient.readContract({
-      address: eventAddress,
-      abi: EventABI,
-      functionName: 'name',
-    }),
-    publicClient.readContract({
-      address: eventAddress,
-      abi: EventABI,
-      functionName: 'symbol',
-    }),
-    publicClient.readContract({
-      address: eventAddress,
-      abi: EventABI,
-      functionName: 'accessPassNFT',
-    }),
-  ])
+  try {
+    const data = await querySubgraph<EventQueryResponse>(GET_EVENT_BY_ADDRESS, {
+      address: eventAddress.toLowerCase(),
+    })
 
-  return {
-    address: eventAddress,
-    name: name as string,
-    symbol: symbol as string,
-    accessPassNFT: accessPassNFT as `0x${string}`,
+    if (!data.event) {
+      throw new Error(`Event not found: ${eventAddress}`)
+    }
+
+    return subgraphEventToEventDetails(data.event)
+  } catch (error) {
+    console.error('Error fetching event details from subgraph:', error)
+    throw error
   }
 }
 
 /**
  * Get all tiers for an event
+ * Now uses subgraph instead of parsing logs and contract reads
  */
 export async function getEventTiers(
   eventAddress: `0x${string}`
 ): Promise<TierData[]> {
-  const tierCreatedAbi = parseAbiItem(
-    'event TierCreated(uint256 indexed tierId, string tierName, uint256 price, uint256 maxSupply)'
-  )
-
   try {
-    // Get current block number
-    const latestBlock = await publicClient.getBlockNumber()
-    const startBlock = latestBlock > 10000n ? latestBlock - 10000n : 0n
-
-    const logs = await publicClient.getLogs({
-      address: eventAddress,
-      event: tierCreatedAbi,
-      fromBlock: startBlock,
-      toBlock: 'latest',
+    const data = await querySubgraph<TiersQueryResponse>(GET_EVENT_TIERS, {
+      eventAddress: eventAddress.toLowerCase(),
     })
 
-  // Fetch current tier state for each tier
-  const tiers = await Promise.all(
-    logs.map(async (log) => {
-      const tierId = log.args.tierId!
-
-      const [tierInfo, supply] = await Promise.all([
-        publicClient.readContract({
-          address: eventAddress,
-          abi: EventABI,
-          functionName: 'getTier',
-          args: [tierId],
-        }),
-        publicClient.readContract({
-          address: eventAddress,
-          abi: EventABI,
-          functionName: 'totalSupply',
-          args: [tierId],
-        }),
-      ])
-
-      const tier = tierInfo as {
-        price: bigint
-        maxSupply: bigint
-        tierName: string
-        active: boolean
-      }
-
-      return {
-        tierId,
-        tierName: tier.tierName,
-        price: tier.price,
-        maxSupply: tier.maxSupply,
-        currentSupply: supply as bigint,
-        available: tier.maxSupply - (supply as bigint),
-        active: tier.active,
-      }
-    })
-  )
-
-    return tiers
+    return data.tiers.map(subgraphTierToTierData)
   } catch (error) {
-    console.error('Error fetching tiers:', error)
+    console.error('Error fetching tiers from subgraph:', error)
     return []
   }
 }
 
 /**
  * Get single tier information
+ * Now uses subgraph instead of contract reads
  */
 export async function getTierInfo(
   eventAddress: `0x${string}`,
   tierId: bigint
 ): Promise<TierData> {
-  const [tierInfo, supply] = await Promise.all([
-    publicClient.readContract({
-      address: eventAddress,
-      abi: EventABI,
-      functionName: 'getTier',
-      args: [tierId],
-    }),
-    publicClient.readContract({
-      address: eventAddress,
-      abi: EventABI,
-      functionName: 'totalSupply',
-      args: [tierId],
-    }),
-  ])
+  try {
+    // Query by composite ID format: eventAddress-tierId
+    const tierCompositeId = `${eventAddress.toLowerCase()}-${tierId.toString()}`
 
-  const tier = tierInfo as {
-    price: bigint
-    maxSupply: bigint
-    tierName: string
-    active: boolean
-  }
+    const data = await querySubgraph<TiersQueryResponse>(GET_EVENT_TIERS, {
+      eventAddress: eventAddress.toLowerCase(),
+    })
 
-  return {
-    tierId,
-    tierName: tier.tierName,
-    price: tier.price,
-    maxSupply: tier.maxSupply,
-    currentSupply: supply as bigint,
-    available: tier.maxSupply - (supply as bigint),
-    active: tier.active,
+    const tier = data.tiers.find((t) => t.tierId === tierId.toString())
+
+    if (!tier) {
+      throw new Error(`Tier ${tierId} not found for event ${eventAddress}`)
+    }
+
+    return subgraphTierToTierData(tier)
+  } catch (error) {
+    console.error('Error fetching tier info from subgraph:', error)
+    throw error
   }
 }
 
 /**
  * Get all tickets owned by a user across all events
+ * Now uses subgraph instead of fetching events + checking balances
  */
 export async function getUserTickets(
   userAddress: `0x${string}`
 ): Promise<UserTicket[]> {
   try {
-    // Get all events
-    const events = await getAllEvents()
-
-    // For each event, fetch tiers and check user balance
-    const allTickets = await Promise.all(
-      events.map(async (event) => {
-        const tiers = await getEventTiers(event.eventAddress)
-
-        // Check user balance for each tier
-        const tickets = await Promise.all(
-          tiers.map(async (tier) => {
-            const balance = await publicClient.readContract({
-              address: event.eventAddress,
-              abi: EventABI,
-              functionName: 'balanceOf',
-              args: [userAddress, tier.tierId],
-            })
-
-            return {
-              eventAddress: event.eventAddress,
-              eventName: event.name,
-              tierId: tier.tierId,
-              tierName: tier.tierName,
-              balance: balance as bigint,
-              price: tier.price,
-            }
-          })
-        )
-
-        // Filter out tiers with zero balance
-        return tickets.filter((ticket) => ticket.balance > 0n)
-      })
+    const data = await querySubgraph<TicketBalancesQueryResponse>(
+      GET_USER_TICKETS,
+      {
+        userAddress: userAddress.toLowerCase(),
+      }
     )
 
-    // Flatten array and return
-    return allTickets.flat()
+    return data.ticketBalances.map((balance) => ({
+      eventAddress: balance.event.id as `0x${string}`,
+      eventName: balance.event.name,
+      tierId: BigInt(balance.tier.tierId),
+      tierName: balance.tier.tierName,
+      balance: BigInt(balance.balance),
+      price: BigInt(balance.tier.price),
+    }))
   } catch (error) {
-    console.error('Error fetching user tickets:', error)
+    console.error('Error fetching user tickets from subgraph:', error)
+    return []
+  }
+}
+
+/**
+ * Search events by name
+ * New function enabled by subgraph indexing
+ */
+export async function searchEvents(searchTerm: string): Promise<EventData[]> {
+  try {
+    const SEARCH_EVENTS = `
+      query SearchEvents($searchTerm: String!) {
+        events(
+          where: { name_contains_nocase: $searchTerm }
+          orderBy: createdAtTimestamp
+          orderDirection: desc
+          first: 100
+        ) {
+          id
+          eventId
+          name
+          symbol
+          creator
+          accessPassNFT
+          createdAtBlock
+          createdAtTimestamp
+          transactionHash
+        }
+      }
+    `
+
+    const data = await querySubgraph<EventsQueryResponse>(SEARCH_EVENTS, {
+      searchTerm,
+    })
+
+    return data.events.map(subgraphEventToEventData)
+  } catch (error) {
+    console.error('Error searching events:', error)
+    return []
+  }
+}
+
+/**
+ * Get events created by a specific creator
+ * New function enabled by subgraph indexing
+ */
+export async function getEventsByCreator(
+  creatorAddress: `0x${string}`
+): Promise<EventData[]> {
+  try {
+    const GET_EVENTS_BY_CREATOR = `
+      query GetEventsByCreator($creatorAddress: String!) {
+        events(
+          where: { creator: $creatorAddress }
+          orderBy: createdAtTimestamp
+          orderDirection: desc
+        ) {
+          id
+          eventId
+          name
+          symbol
+          creator
+          accessPassNFT
+          createdAtBlock
+          createdAtTimestamp
+          transactionHash
+        }
+      }
+    `
+
+    const data = await querySubgraph<EventsQueryResponse>(
+      GET_EVENTS_BY_CREATOR,
+      {
+        creatorAddress: creatorAddress.toLowerCase(),
+      }
+    )
+
+    return data.events.map(subgraphEventToEventData)
+  } catch (error) {
+    console.error('Error fetching events by creator:', error)
     return []
   }
 }
