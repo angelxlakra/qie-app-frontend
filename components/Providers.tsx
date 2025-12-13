@@ -7,6 +7,7 @@ import { config } from '@/config/wagmi'
 import { qieTestnet } from '@/config/chains'
 import '@rainbow-me/rainbowkit/styles.css'
 import { useState } from 'react'
+import { ToasterProvider } from '@/components/providers/ToasterProvider'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient())
@@ -16,6 +17,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider initialChain={qieTestnet}>
           {children}
+          <ToasterProvider />
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

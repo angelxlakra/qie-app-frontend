@@ -6,6 +6,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { TicketCard } from "@/components/TicketCard";
+import { TicketCardSkeleton } from "@/components/ui/Skeletons";
 import { getUserTickets, type UserTicket } from "@/lib/events";
 
 export default function MyTicketsPage() {
@@ -96,11 +97,10 @@ export default function MyTicketsPage() {
               </div>
             </div>
           ) : isLoading ? (
-            <div className="text-center py-16">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-300">
-                Loading your tickets...
-              </p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <TicketCardSkeleton key={i} />
+              ))}
             </div>
           ) : error ? (
             <div className="text-center py-16">

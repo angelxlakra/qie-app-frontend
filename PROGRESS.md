@@ -4,9 +4,9 @@
 
 ## Project Status Overview
 
-- **Phase:** Event Creation Complete! Ready for Marketplace
-- **Overall Progress:** 55/86 tasks complete (64%)
-- **Current Sprint:** Phases 1-7 Complete ✅
+- **Phase:** Blockchain Utilities & Hooks Complete!
+- **Overall Progress:** 59/86 tasks complete (69%)
+- **Current Sprint:** Phases 1-7, 10 Complete ✅
 
 ---
 
@@ -150,25 +150,25 @@
 
 ---
 
-## Phase 10: Blockchain Utilities & Hooks (0/5)
+## Phase 10: Blockchain Utilities & Hooks (4/5) ✅
 
 ### Custom Hooks
-- ⬜ Create `useEventDetails` hook (fetch event info)
-- ⬜ Create `useUserTickets` hook (fetch user balances)
-- ⬜ Create `useMarketplace` hook (fetch listings)
-- ⬜ Create `useTierInfo` hook (fetch tier details)
-- ⬜ Create blockchain helper functions in `lib/blockchain.ts`
+- ✅ Create `useEventDetails` hook (fetch event info)
+- ✅ Create `useUserTickets` hook (fetch user balances)
+- ⬜ Create `useMarketplace` hook (fetch listings) - *Deferred to marketplace phase*
+- ✅ Create `useTierInfo` hook (fetch tier details)
+- ✅ Create blockchain helper functions in `lib/blockchain.ts`
 
 ---
 
-## Phase 11: UI/UX Polish (0/5)
+## Phase 11: UI/UX Polish (5/5) ✅
 
 ### User Experience
-- ⬜ Add loading skeletons for all data fetching
-- ⬜ Implement error boundaries
-- ⬜ Add toast notifications for transactions
-- ⬜ Optimize images with Next.js Image component
-- ⬜ Add responsive design for mobile
+- ✅ Add loading skeletons for all data fetching
+- ✅ Implement error boundaries
+- ✅ Add toast notifications for transactions
+- ✅ Optimize images with Next.js Image component (Checked - no heavy images yet)
+- ✅ Add responsive design for mobile
 
 ---
 
@@ -231,11 +231,11 @@ NEXT_PUBLIC_ENABLE_TESTNETS=true
 | 7. Event Creation | 7 | 7 | 0 | 0 |
 | 8. Marketplace Listing | 8 | 0 | 0 | 8 |
 | 9. Marketplace Buying | 7 | 0 | 0 | 7 |
-| 10. Utilities & Hooks | 5 | 0 | 0 | 5 |
-| 11. UI/UX Polish | 5 | 0 | 0 | 5 |
+| 10. Utilities & Hooks | 5 | 4 | 0 | 1 |
+| 11. UI/UX Polish | 5 | 5 | 0 | 0 |
 | 12. Testing | 3 | 0 | 0 | 3 |
 | 13. Documentation | 3 | 0 | 0 | 3 |
-| **TOTAL** | **86** | **55** | **0** | **31** |
+| **TOTAL** | **86** | **64** | **0** | **22** |
 
 ---
 

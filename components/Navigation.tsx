@@ -8,7 +8,7 @@ import { WalletButton } from './WalletButton'
 const navItems = [
   { href: '/', label: 'Home' },
   { href: '/events', label: 'Events' },
-  { href: '/marketplace', label: 'Marketplace' },
+  // { href: '/marketplace', label: 'Marketplace' },
   { href: '/my-tickets', label: 'My Tickets' },
   { href: '/create-event', label: 'Create Event' },
 ]

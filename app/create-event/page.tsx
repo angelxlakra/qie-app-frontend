@@ -12,6 +12,7 @@ import EventFactoryABI from "@/abis/EventFactory.json";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { CONTRACT_ADDRESSES } from "@/config/contracts";
+import { toast } from "sonner";
 
 type TierForm = {
   tierName: string;
@@ -31,7 +32,6 @@ export default function CreateEventPage() {
   const [royaltyBps, setRoyaltyBps] = useState("500");
   const [tiers, setTiers] = useState<TierForm[]>([{ ...EMPTY_TIER }]);
   const [gatekeepers, setGatekeepers] = useState<string[]>([""]);
-  const [formError, setFormError] = useState<string | null>(null);
   const [createdEvent, setCreatedEvent] = useState<`0x${string}` | null>(null);
 
   const {
@@ -59,6 +59,13 @@ export default function CreateEventPage() {
     [gatekeepers]
   );
 
+  // Handle transaction toasts
+  useEffect(() => {
+    if (isPending) toast.loading('Waiting for wallet approval...', { id: 'create-event' });
+    if (isConfirming) toast.loading('Creating event on blockchain...', { id: 'create-event' });
+    if (writeError) toast.error('Failed to create event', { id: 'create-event', description: writeError.message.split('\n')[0] });
+  }, [isPending, isConfirming, writeError]);
+
   useEffect(() => {
     if (!receipt) return;
 
@@ -73,6 +80,7 @@ export default function CreateEventPage() {
       const eventAddress = log?.args?.eventAddress;
       if (eventAddress) {
         setCreatedEvent(eventAddress);
+        toast.success("Event created successfully!", { id: 'create-event' });
         const timer = setTimeout(() => {
           router.push(`/events/${eventAddress}`);
         }, 2000);
@@ -80,6 +88,7 @@ export default function CreateEventPage() {
       }
     } catch (err) {
       console.error("Failed to parse EventCreated log", err);
+      toast.error("Event created but failed to parse address", { id: 'create-event' });
     }
   }, [receipt, router]);
 
@@ -118,18 +127,18 @@ export default function CreateEventPage() {
 
   const validateForm = () => {
     if (!isConnected) {
-      setFormError("Connect your wallet to create an event.");
+      toast.error("Connect your wallet to create an event.");
       return null;
     }
 
     if (!name.trim() || !symbol.trim() || !baseURI.trim()) {
-      setFormError("Name, symbol, and base URI are required.");
+      toast.error("Name, symbol, and base URI are required.");
       return null;
     }
 
     const royalty = Number(royaltyBps);
     if (Number.isNaN(royalty) || royalty < 0 || royalty > 10000) {
-      setFormError("Royalty must be between 0 and 10000 basis points.");
+      toast.error("Royalty must be between 0 and 10000 basis points.");
       return null;
     }
 
@@ -143,7 +152,7 @@ export default function CreateEventPage() {
       .filter((tier) => tier.tierName && tier.price && tier.maxSupply);
 
     if (preparedTiers.length === 0) {
-      setFormError("Add at least one tier with price and supply.");
+      toast.error("Add at least one tier with price and supply.");
       return null;
     }
 
@@ -153,12 +162,12 @@ export default function CreateEventPage() {
       try {
         priceWei = parseEther(tier.price);
       } catch {
-        setFormError("Enter a valid price for each tier (use decimals only).");
+        toast.error("Enter a valid price for each tier (use decimals only).");
         return null;
       }
       const maxSupplyValue = Number(tier.maxSupply);
       if (!Number.isInteger(maxSupplyValue) || maxSupplyValue <= 0) {
-        setFormError("Tier supply must be a positive integer.");
+        toast.error("Tier supply must be a positive integer.");
         return null;
       }
 
@@ -172,12 +181,10 @@ export default function CreateEventPage() {
 
     for (const address of cleanGatekeepers) {
       if (!isAddress(address)) {
-        setFormError(`Invalid gatekeeper address: ${address}`);
+        toast.error(`Invalid gatekeeper address: ${address}`);
         return null;
       }
     }
-
-    setFormError(null);
 
     return {
       royaltyBpsValue: BigInt(royalty),
@@ -435,22 +442,6 @@ export default function CreateEventPage() {
                     ))}
                   </div>
                 </div>
-
-                {formError && (
-                  <div className="p-3 rounded-md bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-800 text-red-700 dark:text-red-200">
-                    {formError}
-                  </div>
-                )}
-                {writeError && (
-                  <div className="p-3 rounded-md bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-800 text-red-700 dark:text-red-200">
-                    {writeError.message.split("\n")[0]}
-                  </div>
-                )}
-                {isSuccess && createdEvent && (
-                  <div className="p-3 rounded-md bg-green-50 border border-green-200 dark:bg-green-900/30 dark:border-green-800 text-green-700 dark:text-green-200">
-                    Event created! Redirecting to {createdEvent}...
-                  </div>
-                )}
 
                 <button
                   type="submit"

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { useRouter } from 'next/navigation'
 import EventABI from '@/abis/Event.json'
+import { toast } from 'sonner'
 
 interface BuyTicketButtonProps {
   eventAddress: `0x${string}`
@@ -37,20 +38,37 @@ export function BuyTicketButton({
     hash,
   })
 
-  // Auto-refresh page after successful purchase
+  // Toast notifications for transaction status
   useEffect(() => {
+    if (isPending) {
+        toast.loading('Confirming transaction in wallet...', { id: 'buy-ticket' })
+    }
+    if (isConfirming) {
+        toast.loading('Processing transaction...', { id: 'buy-ticket' })
+    }
     if (isSuccess) {
+      toast.success('Tickets purchased successfully!', {
+        id: 'buy-ticket',
+        description: `Tx: ${hash?.slice(0, 10)}...`
+      })
       // Wait a moment for the blockchain state to update
       const timer = setTimeout(() => {
         router.refresh()
       }, 2000)
       return () => clearTimeout(timer)
     }
-  }, [isSuccess, router])
+    if (error) {
+        toast.error('Transaction failed', {
+            id: 'buy-ticket',
+            description: error.message.split('\n')[0]
+        })
+    }
+  }, [isPending, isConfirming, isSuccess, error, hash, router])
+
 
   const handleBuy = () => {
     if (!isConnected) {
-      alert('Please connect your wallet first')
+      toast.error('Please connect your wallet first')
       return
     }
 
@@ -103,7 +121,7 @@ export function BuyTicketButton({
         {!isConnected
           ? 'Connect Wallet'
           : isPending
-          ? 'Confirming...'
+          ? 'Check Wallet...'
           : isConfirming
           ? 'Processing...'
           : isSuccess
@@ -114,18 +132,6 @@ export function BuyTicketButton({
           ? 'Sold Out'
           : `Buy ${quantity} Ticket${quantity > 1 ? 's' : ''}`}
       </button>
-
-      {/* Status Messages */}
-      {error && (
-        <p className="text-sm text-red-600 dark:text-red-400">
-          Error: {error.message.split('\n')[0]}
-        </p>
-      )}
-      {isSuccess && (
-        <p className="text-sm text-green-600 dark:text-green-400">
-          Tickets purchased successfully! Transaction: {hash?.slice(0, 10)}...
-        </p>
-      )}
     </div>
   )
 }

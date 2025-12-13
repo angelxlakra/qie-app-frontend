@@ -22,11 +22,11 @@ export function Footer() {
                   Browse Events
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link href="/marketplace" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                   Marketplace
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link href="/my-tickets" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                   My Tickets
