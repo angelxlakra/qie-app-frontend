@@ -1,0 +1,25 @@
+'use client'
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { WagmiProvider } from 'wagmi'
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
+import { config } from '@/config/wagmi'
+import { qieTestnet } from '@/config/chains'
+import '@rainbow-me/rainbowkit/styles.css'
+import { useState } from 'react'
+import { ToasterProvider } from '@/components/providers/ToasterProvider'
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(() => new QueryClient())
+
+  return (
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider initialChain={qieTestnet}>
+          {children}
+          <ToasterProvider />
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
+  )
+}
