@@ -26,9 +26,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Technology Stack
 
 ### Blockchain Interaction (Required)
-- **viem** (`^2.x`): TypeScript interface for Ethereum - used for all blockchain reads/writes
+- **viem** (`^2.x`): TypeScript interface for Ethereum - used for all blockchain writes
 - **wagmi** (`^2.x`): React Hooks for Ethereum - wallet connection, contract interactions
 - **RainbowKit** (`^2.x`): Wallet connection UI with custom chain support
+
+### Data Fetching (Subgraph)
+- **graphql** & **graphql-request**: GraphQL client for querying the subgraph indexer
+- **Subgraph URL**: https://simplr-events-qie-contracts-production.up.railway.app/graphql
+- All event data, tiers, and user tickets are fetched from the subgraph (not direct contract reads)
+- Contract reads are only used for real-time critical data (nonces, user balances during transactions)
 
 ### Frontend Framework (Recommended)
 - **Next.js 15+** with App Router (Server Components + Client Components)
@@ -63,6 +69,9 @@ Event Implementation: 0xa6Dc66Fce6147E78abb50F3a9Ed6A14069a0c7D1
 ```bash
 # Install dependencies
 npm install viem wagmi @rainbow-me/rainbowkit @tanstack/react-query
+
+# For GraphQL/Subgraph queries
+npm install graphql graphql-request
 
 # For QR code functionality
 npm install qrcode html5-qrcode
@@ -225,25 +234,36 @@ export function BuyTicketButton({ eventAddress, tierId, price }) {
 
 ## Critical Implementation Patterns
 
-### 1. Event Discovery Pattern
+### 1. Event Discovery Pattern (Subgraph-based)
 
-**Use Event Logs for Historical Data:**
+**Use Subgraph for All Data Fetching:**
 ```typescript
-import { parseAbiItem } from 'viem'
+import { querySubgraph } from '@/config/subgraph'
+import { GET_ALL_EVENTS } from '@/lib/subgraph/queries'
+import type { EventsQueryResponse } from '@/lib/subgraph/types'
 
-const eventCreatedAbi = parseAbiItem(
-  'event EventCreated(address indexed eventAddress, address indexed creator, string name, uint256 indexed eventId)'
-)
-
-const logs = await publicClient.getLogs({
-  address: CONTRACT_ADDRESSES.eventFactory,
-  event: eventCreatedAbi,
-  fromBlock: 0n,
-  toBlock: 'latest',
+// Fetch all events from subgraph
+const data = await querySubgraph<EventsQueryResponse>(GET_ALL_EVENTS, {
+  first: 1000,
+  skip: 0,
+  orderBy: 'createdAtTimestamp',
+  orderDirection: 'desc',
 })
+
+const events = data.events.map(event => ({
+  eventAddress: event.id as `0x${string}`,
+  creator: event.creator as `0x${string}`,
+  name: event.name,
+  eventId: BigInt(event.eventId),
+  blockNumber: BigInt(event.createdAtBlock),
+  transactionHash: event.transactionHash as `0x${string}`,
+}))
 ```
 
-**Best Practice**: Cache event logs in a database or use TanStack Query for client-side caching. Don't fetch all logs on every page load.
+**Best Practice**: All event data, tiers, and user tickets are now fetched from the subgraph indexer. This is faster and more efficient than parsing logs or reading contracts directly. Contract reads are only used for:
+- Real-time user balances during transactions
+- Nonces for QR code generation (security-critical)
+- Transaction writes (buying tickets, creating events, etc.)
 
 ### 2. QR Code Generation for Ticket Redemption (Main App Feature)
 
@@ -420,6 +440,7 @@ src/
 ├── config/
 │   ├── chains.ts            # QIE Testnet chain definition
 │   ├── contracts.ts         # Contract addresses (Factory, Marketplace)
+│   ├── subgraph.ts          # GraphQL client configuration for subgraph
 │   └── wagmi.ts             # Wagmi + RainbowKit configuration
 ├── abis/
 │   ├── EventFactory.json    # For creating events
@@ -427,13 +448,17 @@ src/
 │   ├── Marketplace.json     # For listing/buying on marketplace
 │   └── AccessPassNFT.json   # For viewing redeemed passes
 ├── hooks/
-│   ├── useEventDetails.ts   # Fetch event information
-│   ├── useUserTickets.ts    # Fetch user's ticket balances
+│   ├── useEventDetails.ts   # Fetch event information (from subgraph)
+│   ├── useUserTickets.ts    # Fetch user's ticket balances (from subgraph)
 │   ├── useMarketplace.ts    # Fetch marketplace listings
 │   └── useQRCode.ts         # Generate EIP-712 signed QR codes
 └── lib/
+    ├── events.ts           # Data fetching functions (uses subgraph)
     ├── blockchain.ts        # Helper functions for blockchain interactions
-    └── qr.ts               # QR code generation utilities (EIP-712 signing)
+    ├── qr.ts               # QR code generation utilities (EIP-712 signing)
+    └── subgraph/
+        ├── types.ts        # TypeScript types for subgraph entities
+        └── queries.ts      # GraphQL queries for events, tiers, users
 ```
 
 ## Common Gotchas
@@ -470,11 +495,12 @@ When transactions fail with gas estimation errors, it usually means the transact
 
 Always validate conditions before attempting the transaction.
 
-### 5. Event Logs Performance
-For production, don't fetch all events from block 0 on every request. Instead:
-- Use an indexer (The Graph, Goldsky)
-- Cache logs in a database
-- Or use TanStack Query with appropriate staleTime
+### 5. Subgraph Data Fetching
+This application uses a GraphQL subgraph indexer for all data reads:
+- **Subgraph URL**: https://simplr-events-qie-contracts-production.up.railway.app/graphql
+- All events, tiers, and user tickets are fetched from the subgraph
+- No direct contract reads for data fetching (only for writes and critical real-time data)
+- TanStack Query is used for client-side caching with appropriate staleTime
 
 ## Testing Patterns
 
@@ -535,11 +561,12 @@ try {
 
 ## Performance Optimization
 
-1. **Use Server Components for reads**: Fetch static data (events, tiers) on the server
-2. **Cache event data**: Use TanStack Query with appropriate staleTime (e.g., 1 minute for event listings)
-3. **Batch RPC calls**: Use `publicClient.multicall` when fetching multiple values
-4. **Lazy load ABIs**: Import ABIs only where needed to reduce bundle size
-5. **Optimize images**: Use Next.js Image component for event posters/thumbnails
+1. **Use Subgraph for all reads**: All event data, tiers, and user tickets are fetched from the GraphQL subgraph indexer (faster than RPC calls)
+2. **Use Server Components for reads**: Fetch static data (events, tiers) on the server using subgraph queries
+3. **Cache event data**: Use TanStack Query with appropriate staleTime (e.g., 1 minute for event listings)
+4. **Contract reads only when necessary**: Only use direct contract reads for real-time critical data (nonces, transaction-time balances)
+5. **Lazy load ABIs**: Import ABIs only where needed to reduce bundle size
+6. **Optimize images**: Use Next.js Image component for event posters/thumbnails
 
 ## Documentation Reference
 
