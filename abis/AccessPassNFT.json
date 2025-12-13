@@ -1,0 +1,52 @@
+[
+  {
+    "inputs": [
+      {"internalType": "address", "name": "owner", "type": "address"}
+    ],
+    "name": "balanceOf",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "tokenId", "type": "uint256"}],
+    "name": "ownerOf",
+    "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "tokenId", "type": "uint256"}],
+    "name": "getMetadata",
+    "outputs": [
+      {
+        "components": [
+          {"internalType": "uint256", "name": "tierId", "type": "uint256"},
+          {"internalType": "uint256", "name": "mintTimestamp", "type": "uint256"}
+        ],
+        "internalType": "struct PassMetadata",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "tokenId", "type": "uint256"}],
+    "name": "isTransferable",
+    "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "internalType": "uint256", "name": "tokenId", "type": "uint256"},
+      {"indexed": true, "internalType": "address", "name": "recipient", "type": "address"},
+      {"indexed": true, "internalType": "uint256", "name": "tierId", "type": "uint256"}
+    ],
+    "name": "AccessPassMinted",
+    "type": "event"
+  }
+]
